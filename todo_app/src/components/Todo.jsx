@@ -22,7 +22,7 @@ const Todo = () => {
       e.preventDefault();
       if (formData.title && formData.description) {
         try {
-          const response = await axios.post(`${import.meta.APIURL}/api/todos`, formData);
+          const response = await axios.post(`${import.meta.env.VITE_APIURL}/api/todos`, formData);
           console.log("Todo added:", response.data);
           
           // Add new todo to the list (if you're planning to display it)

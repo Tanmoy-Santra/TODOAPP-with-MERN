@@ -15,7 +15,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    axios.get(`${import.meta.APIURL}/api/todos`)
+    axios.get(`${import.meta.env.VITE_APIURL}/api/todos`)
       .then((res) => {
         setTodos(res.data);
       }).catch((err) => {
@@ -25,7 +25,7 @@ const Home = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`${import.meta.APIURL}/api/todos/${id}`);
+      await axios.delete(`${import.meta.env.VITE_APIURL}/api/todos/${id}`);
       setTodos((prev) => prev.filter((item) => item._id !== id));
       toast.success('Todo removed!');
     } catch (error) {
@@ -56,7 +56,7 @@ const Home = () => {
   const submitUpdatedTodo = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`http://localhost:5000/api/todos/${updateId}`, updateFormData);
+      const res = await axios.put(`${import.meta.env.VITE_APIURL}/api/todos/${updateId}`, updateFormData);
       const updated = todos.map(todo => todo._id === updateId ? res.data : todo);
       setTodos(updated);
       setShowPopup(false);

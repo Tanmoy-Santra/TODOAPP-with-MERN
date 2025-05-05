@@ -15,7 +15,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/todos')
+    axios.get(`${import.meta.APIURL}/api/todos`)
       .then((res) => {
         setTodos(res.data);
       }).catch((err) => {
@@ -25,7 +25,7 @@ const Home = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/todos/${id}`);
+      await axios.delete(`${import.meta.APIURL}/api/todos/${id}`);
       setTodos((prev) => prev.filter((item) => item._id !== id));
       toast.success('Todo removed!');
     } catch (error) {

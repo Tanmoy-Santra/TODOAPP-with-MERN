@@ -36,12 +36,3 @@ A full-featured TODO application built using the MERN stack (MongoDB, Express.js
 
 ---
 
-## 📦 Installation
-
-### Backend
-
-```bash
-cd backend
-npm install
-# Add .env file with your MongoDB URI and JWT secret
-npm start

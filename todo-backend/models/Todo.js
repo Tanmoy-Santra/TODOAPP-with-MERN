@@ -2,8 +2,7 @@ const mongoose=require('mongoose');
 
 const todoSchema=new mongoose.Schema({
     title:String,
-    description:String,
-    //completed:boolean
+    description:String,   
 },{timestamps:true});
 
 module.exports=mongoose.model('Todo',todoSchema);

@@ -180,6 +180,7 @@ import { FiSearch } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 const Home = () => {
+  
   const [todos, setTodos] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showPopup, setShowPopup] = useState(false);

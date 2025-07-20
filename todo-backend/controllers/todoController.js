@@ -70,6 +70,7 @@ const createTodo = async (req, res) => {
     res.status(201).json(savedTodo);
   } catch (error) {
     res.status(500).json({ message: error.message });
+    
   }
 };
 

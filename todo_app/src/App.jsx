@@ -1,24 +1,55 @@
-import Todo from "./components/Todo"
-import Home from "./components/Home"
-import { BrowserRouter,Router,Route,Routes } from "react-router-dom";
+import Todo from "./components/Todo";
+import Home from "./components/Home";
 import Navbar from "./components/Navbar";
-import { ToastContainer } from 'react-toastify';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "./context/AuthContext";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
+
+const PrivateRoute = ({ children }) => {
+  const { token } = useContext(AuthContext);
+  return token ? children : <Navigate to="/login" />;
+};
 
 function App() {
   return (
-    <div className="bg-background font-sans text-textMain">
-      <BrowserRouter>
-      <Navbar></Navbar>
-        <Routes>
-          <Route path="/" element={<Home></Home>}/>
-          <Route path="/home" element={<Home></Home>}/>
-          <Route path="/notes" element={<Todo></Todo>}/>
-        </Routes>
-      </BrowserRouter>
-      <ToastContainer></ToastContainer>      
-    </div>
-  )
+    <AuthProvider>
+      <div className="bg-background font-sans text-textMain">
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/home"
+              element={
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <PrivateRoute>
+                  <Todo />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+        <ToastContainer />
+      </div>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

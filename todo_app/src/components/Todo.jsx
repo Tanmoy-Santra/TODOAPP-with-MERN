@@ -1,46 +1,52 @@
-import React, { useState } from 'react'
+
+import  { useState, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../context/AuthContext';
 
 const Todo = () => {
-    const [data,setData]=useState([]);
-    const [formData,setFormdata]=useState({
-        title:'',
-        description:''
+  const [data, setData] = useState([]);
+  const [formData, setFormdata] = useState({
+    title: '',
+    description: ''
+  });
+
+  const { token } = useContext(AuthContext);
+
+  const handleChange = (e) => {
+    setFormdata({
+      ...formData,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    const handleChange=(e)=>{       
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.title && formData.description) {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_APIURL}/api/todos`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        console.log('Todo added:', response.data);
+
+        setData([...data, response.data]);
+        toast.success('Todo added successfully..');
+
         setFormdata({
-            ...formData,
-            [e.target.name]:e.target.value,
-        })
-    }
-    
-
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (formData.title && formData.description) {
-        try {
-          const response = await axios.post(`${import.meta.env.VITE_APIURL}/api/todos`, formData);
-          console.log("Todo added:", response.data);
-          
-          // Add new todo to the list (if you're planning to display it)
-          setData([...data, response.data]);
-          toast.success("Todo added successfully..");    
-          // Clear the form
-          setFormdata({
-            title: '',
-            description: ''
-          });
-        } catch (error) {
-          console.error("Error submitting todo:", error);
-          toast.error("something went wrong !!"); 
-        }
+          title: '',
+          description: ''
+        });
+      } catch (error) {
+        console.error('Error submitting todo:', error);
+        toast.error('Something went wrong !!');
       }
-    };
-    
-    
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-fit max-w-md border-2 border-blue-400 rounded-xl shadow-md p-6 bg-white">
@@ -74,10 +80,10 @@ const Todo = () => {
           >
             Submit
           </button>
-        </form>        
+        </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Todo
+export default Todo;

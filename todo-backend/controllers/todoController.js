@@ -1,129 +1,75 @@
-// // controllers/todoController.js
-
-// const Todo = require('../models/Todo');
-
-// // CREATE Todo
-// const createTodo = async (req, res) => {
-//   try {
-//     const newTodo = new Todo(req.body);
-//     const savedTodo = await newTodo.save();
-//     res.status(201).json(savedTodo);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // GET all Todos
-// const getAllTodos = async (req, res) => {
-//   try {
-//     const todos = await Todo.find();
-//     res.status(200).json(todos);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// //deleteTodo
-
-// const deleteTodo=async(req,res)=>{
-//   try {
-//     const {id}=req.params;
-//     const deletedTodo=await Todo.findByIdAndDelete(id);
-//     if (!deletedTodo) {
-//       return res.status(404).json({ message: 'Todo not found' });
-//     }
-
-//     res.status(200).json({ message: 'Todo deleted successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// }
-
-// // UPDATE a Todo
-// const updateTodo = async (req, res) => {
-//   try {
-//     const updatedTodo = await Todo.findByIdAndUpdate(
-//       req.params.id,
-//       req.body,
-//       { new: true }
-//     );
-//     res.status(200).json(updatedTodo);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// module.exports = {
-//   createTodo,
-//   getAllTodos,
-//   deleteTodo,
-//   updateTodo
-// };
-
 const Todo = require('../models/Todo');
 
-// CREATE Todo
+// CREATE Todo (belongs to logged-in user)
 const createTodo = async (req, res) => {
   try {
-    const newTodo = new Todo(req.body);
+    const newTodo = new Todo({ 
+      ...req.body, 
+      userId: req.user.id   // attach userId from JWT
+    });
     const savedTodo = await newTodo.save();
     res.status(201).json(savedTodo);
   } catch (error) {
     res.status(500).json({ message: error.message });
-    
   }
 };
 
-// GET all Todos
+// GET all Todos of logged-in user
 const getAllTodos = async (req, res) => {
   try {
-    const todos = await Todo.find();
+    const todos = await Todo.find({ userId: req.user.id });
     res.status(200).json(todos);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// DELETE Todo
+// DELETE Todo (only if owned by logged-in user)
 const deleteTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedTodo = await Todo.findByIdAndDelete(id);
-    if (!deletedTodo) {
+    const todo = await Todo.findById(id);
+
+    if (!todo) {
       return res.status(404).json({ message: 'Todo not found' });
     }
+
+    // check ownership
+    if (todo.userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this todo' });
+    }
+
+    await todo.deleteOne();
     res.status(200).json({ message: 'Todo deleted successfully' });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// UPDATE Todo
+// UPDATE Todo (only if owned by logged-in user)
 const updateTodo = async (req, res) => {
   try {
-    const { completed } = req.body;
+    const { id } = req.params;
+    const todo = await Todo.findById(id);
 
-    // If completed is explicitly true, set completedAt
-    if (completed === true) {
-      req.body.completedAt = new Date();
+    if (!todo) {
+      return res.status(404).json({ message: 'Todo not found' });
     }
 
-    // If completed is explicitly false, clear completedAt
-    if (completed === false) {
-      req.body.completedAt = null;
+    // check ownership
+    if (todo.userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this todo' });
     }
 
     const updatedTodo = await Todo.findByIdAndUpdate(
-      req.params.id,
+      id,
       req.body,
       { new: true }
     );
 
-    if (!updatedTodo) {
-      return res.status(404).json({ message: 'Todo not found' });
-    }
-
     res.status(200).json(updatedTodo);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
